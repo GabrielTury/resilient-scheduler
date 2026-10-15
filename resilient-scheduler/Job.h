@@ -20,5 +20,8 @@ public:
 	Job(std::string id, Tick arrival, Tick duration, int memoryUnits, int priority, Tick deadline)
 		: id(id), arrival(arrival), duration(duration), memoryUnits(memoryUnits), priority(priority), deadline(deadline) {};
 
+	Job(Job&&) noexcept = default;
+	Job(const Job&) = default;
+	Job& operator=(Job&&) noexcept = default;
 };
 

@@ -3,6 +3,7 @@
 #include "Job.h"
 #include "Worker.h"
 #include "Failure.h"
+#include "Types.h"
 
 class SimulationSystem
 {
@@ -14,13 +15,16 @@ private:
 	std::vector<Failure> totalFailures;
 
 	std::vector<Job> activeJobs;
+	std::vector<Worker> activeWorkers;
+
+private:
+	
 public:
-	SimulationSystem() {};
-	SimulationSystem(std::vector<Job> inJobs, std::vector<Worker> inWorkers, std::vector<Failure> inFailures) : totalJobs(inJobs), totalWorkers(inWorkers), totalFailures(inFailures) {};
+	SimulationSystem() {};	
 
-
+	void Start();
 	void Tick();
 
-	void assign_vectors(std::vector<Job> jobs, std::vector<Worker> workers, std::vector<Failure> failures);
+	void assign_vectors(std::vector<Job> jobs, std::vector<Worker> workers, std::vector<Failure> failures);	
 };
 

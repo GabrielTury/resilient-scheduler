@@ -23,7 +23,7 @@ constexpr std::array<int (Command::*)(const std::string&), commandList.size()> c
 	&Command::failures_command
 };
 
-constexpr int findCommandIndex(const std::string_view cmd)
+constexpr int find_command_index(const std::string_view cmd)
 {
 	for (int i = 0; std::string_view s : commandList)
 	{
@@ -34,7 +34,7 @@ constexpr int findCommandIndex(const std::string_view cmd)
 	return INVALID_COMMAND;
 }
 
-int processArguments(int argc, char** argv, SimulationSystem& sim)
+int process_arguments(int argc, char** argv, SimulationSystem& sim)
 {
 	Command command;
 	int errorCode = SUCCESS;
@@ -44,7 +44,7 @@ int processArguments(int argc, char** argv, SimulationSystem& sim)
 	{
 		std::string_view cmdStr(argv[i]);
 		std::string optionStr = (i + 1 < argc) ? argv[i + 1] : "";
-		int cmdIndex = findCommandIndex(cmdStr);
+		int cmdIndex = find_command_index(cmdStr);
 
 		if (cmdIndex != INVALID_COMMAND)
 		{
@@ -58,8 +58,10 @@ int processArguments(int argc, char** argv, SimulationSystem& sim)
 
 		i += 2;
 	}	
-	//@todo refactor to pass ownership of an object instead of copies (try using std::move)
-	sim.assign_vectors(command.get_jobs(), command.get_workers(), command.get_failures());
+	
+	if(errorCode == SUCCESS)
+		sim.assign_vectors(command.take_jobs(), command.take_workers(), command.take_failures());
+
 	return errorCode;
 }
 
@@ -67,7 +69,9 @@ int main(int argc, char** argv)
 {		
 	SimulationSystem simSys{};
 
-	int res = processArguments(argc, argv, simSys);
+	int res = process_arguments(argc, argv, simSys);
+
+	simSys.Start();
 
 	return res;
 }

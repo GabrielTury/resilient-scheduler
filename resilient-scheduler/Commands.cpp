@@ -4,6 +4,30 @@
 #include "Types.h"
 #include "CsvUtils.hpp"
 
+std::vector<Job> Command::take_jobs()
+{
+	if(parsedJobs.size() > 0)
+		return std::move(parsedJobs);
+
+	return std::vector<Job>();
+}
+
+std::vector<Worker> Command::take_workers()
+{
+	if (parsedWorkers.size() > 0)
+		return std::move(parsedWorkers);
+
+	return std::vector<Worker>();
+}
+
+std::vector<Failure> Command::take_failures()
+{
+	if (parsedFailures.size() > 0)
+		return std::move(parsedFailures);
+
+	return std::vector<Failure>();
+}
+
 int Command::test_command(const std::string& option)
 {
 	std::cout << "Executing test command with option: " << option << std::endl;

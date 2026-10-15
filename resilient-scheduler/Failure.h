@@ -16,5 +16,9 @@ public:
 	using TypeTuple = std::tuple<std::string, Tick, Tick>;	
 	Failure(std::string id, Tick start, Tick duration)
 		: id(id), start(start), duration(duration) {};
+
+	Failure(Failure&&) noexcept = default;
+	Failure(const Failure&) = default;
+	Failure& operator=(Failure&&) noexcept = default;
 };
 

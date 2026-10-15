@@ -14,9 +14,9 @@ private:
 	std::vector<Worker> parsedWorkers;
 	std::vector<Failure> parsedFailures;
 public:
-	std::vector<Job> get_jobs() { return parsedJobs; };
-	std::vector<Worker> get_workers() { return parsedWorkers; };
-	std::vector<Failure> get_failures() { return parsedFailures; };
+	std::vector<Job> take_jobs();
+	std::vector<Worker> take_workers();
+	std::vector<Failure> take_failures();
 
 public:
 	int test_command(const std::string& option);
