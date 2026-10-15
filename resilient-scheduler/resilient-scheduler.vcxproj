@@ -140,12 +140,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="Failure.cpp" />
+    <ClCompile Include="Job.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SimulationSystem.cpp" />
+    <ClCompile Include="Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Commands.h" />
     <ClInclude Include="CsvUtils.hpp" />
+    <ClInclude Include="Failure.h" />
+    <ClInclude Include="Job.h" />
+    <ClInclude Include="SimulationSystem.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="Worker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

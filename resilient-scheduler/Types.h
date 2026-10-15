@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+using Tick = uint32_t;
 
 enum ErrorCode {
 	SUCCESS = 0,
