@@ -8,3 +8,12 @@ enum ErrorCode {
 	INVALID_OPTION = -2,
 	EXECUTION_FAILED = -3
 };
+
+enum Policies {
+	SJF = 0,
+	FIFO = 1,
+	RR = 2
+};
+
+
+

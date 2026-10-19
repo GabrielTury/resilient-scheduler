@@ -8,10 +8,15 @@
 class WorkPolicy
 {
 public:
-	WorkPolicy() {};
+	virtual ~WorkPolicy() = default;
 
-	void handle_failures(const std::vector<Failure>& failure, const std::vector<Worker>& workers);
+	virtual void assign_jobs(std::vector<Job>& jobs, std::vector<Worker>& workers) = 0;
+};
 
-	//virtual void assign_jobs(const std::vector<Job>& jobs, const std::vector<Worker>& workers) = 0;
+class SJFPolicy : public WorkPolicy {
+public:
+	SJFPolicy() {};
+
+	void assign_jobs(std::vector<Job>& jobs, std::vector<Worker>& workers) override;
 };
 

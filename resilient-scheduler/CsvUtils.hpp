@@ -90,6 +90,8 @@ class CsvUtils
 public:
 	template<CsvRecord T>
 	static std::vector<T> parse(const std::string& path, bool hasHeader = true);
+
+	static void writeln_csv(const std::vector<std::string>& elements, const std::string& filePath);
 };
 
 template<CsvRecord T>
@@ -129,4 +131,31 @@ std::vector<T> CsvUtils::parse(const std::string& path, bool hasHeader)
 		}
 	}
 	return records;
+}
+
+static void writeln_csv(const std::vector<std::string>& elements, const std::string& filePath)
+{
+	std::ifstream readFile(filePath);
+	if (!readFile)
+	{
+		//create file and use it
+	}	
+	std::string line;
+	std::size_t lineNo = 0;
+	
+	while (std::getline(readFile, line)) {
+		lineNo++;
+		if (csv_detail::trim(line).empty())
+		{
+			std::string writeLine;
+			for (std::string s : elements)
+			{
+				writeLine += s + ",";
+			}
+			std::ofstream writeFile(filePath);
+			writeFile << writeLine << std::endl;
+				//write the line
+				break;
+		}
+	}			
 }

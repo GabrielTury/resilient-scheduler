@@ -60,7 +60,7 @@ int process_arguments(int argc, char** argv, SimulationSystem& sim)
 	}	
 	
 	if(errorCode == SUCCESS)
-		sim.assign_vectors(command.take_jobs(), command.take_workers(), command.take_failures());
+		sim.assign_data(command.take_jobs(), command.take_workers(), command.take_failures());
 
 	return errorCode;
 }

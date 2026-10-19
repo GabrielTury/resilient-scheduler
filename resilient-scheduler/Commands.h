@@ -10,13 +10,13 @@ class Command {
 private:
 	std::string basePath;
 
-	std::vector<Job> parsedJobs;
-	std::vector<Worker> parsedWorkers;
-	std::vector<Failure> parsedFailures;
+	std::vector<JobData> parsedJobs;
+	std::vector<WorkerData> parsedWorkers;
+	std::vector<FailureData> parsedFailures;
 public:
-	std::vector<Job> take_jobs();
-	std::vector<Worker> take_workers();
-	std::vector<Failure> take_failures();
+	std::vector<JobData> take_jobs();
+	std::vector<WorkerData> take_workers();
+	std::vector<FailureData> take_failures();
 
 public:
 	int test_command(const std::string& option);

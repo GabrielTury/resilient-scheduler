@@ -4,28 +4,28 @@
 #include "Types.h"
 #include "CsvUtils.hpp"
 
-std::vector<Job> Command::take_jobs()
+std::vector<JobData> Command::take_jobs()
 {
 	if(parsedJobs.size() > 0)
 		return std::move(parsedJobs);
 
-	return std::vector<Job>();
+	return std::vector<JobData>();
 }
 
-std::vector<Worker> Command::take_workers()
+std::vector<WorkerData> Command::take_workers()
 {
 	if (parsedWorkers.size() > 0)
 		return std::move(parsedWorkers);
 
-	return std::vector<Worker>();
+	return std::vector<WorkerData>();
 }
 
-std::vector<Failure> Command::take_failures()
+std::vector<FailureData> Command::take_failures()
 {
 	if (parsedFailures.size() > 0)
 		return std::move(parsedFailures);
 
-	return std::vector<Failure>();
+	return std::vector<FailureData>();
 }
 
 int Command::test_command(const std::string& option)
@@ -57,8 +57,7 @@ int Command::workers_command(const std::string& option)
 		return INVALID_OPTION;
 	}
 
-	//@todo parse and store workers file content
-	parsedWorkers = CsvUtils::parse<Worker>(file);
+	parsedWorkers = CsvUtils::parse<WorkerData>(file);
 	return SUCCESS;
 }
 
@@ -73,7 +72,7 @@ int Command::jobs_command(const std::string& option)
 	}
 
 
-	parsedJobs = CsvUtils::parse<Job>(file);
+	parsedJobs = CsvUtils::parse<JobData>(file);
 	return SUCCESS;
 }
 
@@ -87,7 +86,7 @@ int Command::failures_command(const std::string& option)
 		return INVALID_OPTION;
 	}
 
-	parsedFailures = CsvUtils::parse<Failure>(file);
+	parsedFailures = CsvUtils::parse<FailureData>(file);
 	return SUCCESS;
 }
 

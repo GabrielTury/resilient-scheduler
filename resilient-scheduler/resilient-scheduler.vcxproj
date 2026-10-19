@@ -142,6 +142,7 @@
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Failure.cpp" />
     <ClCompile Include="Job.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Policy.cpp" />
     <ClCompile Include="SimulationSystem.cpp" />
@@ -152,7 +153,9 @@
     <ClInclude Include="CsvUtils.hpp" />
     <ClInclude Include="Failure.h" />
     <ClInclude Include="Job.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="Policy.h" />
+    <ClInclude Include="SimulationBaseObject.h" />
     <ClInclude Include="SimulationSystem.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Worker.h" />
