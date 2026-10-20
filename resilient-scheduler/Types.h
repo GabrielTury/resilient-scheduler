@@ -15,5 +15,11 @@ enum Policies {
 	RR = 2
 };
 
-
+enum class JobStates {
+	NOTARRIVED = 0,
+	READY = 1,
+	COMPLETED = 2,
+	LATE = 3,
+	WAITING = 4,
+};
 

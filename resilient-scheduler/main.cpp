@@ -6,6 +6,7 @@
 #include "Job.h"
 #include <array>
 #include <functional>
+#include "Logger.h"
 
 constexpr std::array<std::string_view, 5> commandList{
 	"--test",
@@ -59,8 +60,13 @@ int process_arguments(int argc, char** argv, SimulationSystem& sim)
 		i += 2;
 	}	
 	
-	if(errorCode == SUCCESS)
+	if (errorCode == SUCCESS)
+	{
 		sim.assign_data(command.take_jobs(), command.take_workers(), command.take_failures());
+		//std::unique_ptr<Logger> logger = std::make_unique<Logger>(command.take_basePath());
+		
+		//sim.assign_logger(logger);
+	}
 
 	return errorCode;
 }

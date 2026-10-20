@@ -80,82 +80,64 @@ namespace csv_detail
 	}
 }
 
-// T must declare `using TypeTuple = std::tuple<...>` matching a constructor.
-template<typename T>
-concept CsvRecord = requires { typename T::TypeTuple; }
-&& csv_detail::ConstructibleFromTuple<T, typename T::TypeTuple>::value;
+namespace CsvUtils {
 
-class CsvUtils
-{
-public:
+	// T must declare `using TypeTuple = std::tuple<...>` matching a constructor.
+	template<typename T>
+	concept CsvRecord = requires { typename T::TypeTuple; }
+	&& csv_detail::ConstructibleFromTuple<T, typename T::TypeTuple>::value;
+
 	template<CsvRecord T>
-	static std::vector<T> parse(const std::string& path, bool hasHeader = true);
-
-	static void writeln_csv(const std::vector<std::string>& elements, const std::string& filePath);
-};
-
-template<CsvRecord T>
-std::vector<T> CsvUtils::parse(const std::string& path, bool hasHeader)
-{
-	using Fields = typename T::TypeTuple;
-	constexpr std::size_t N = std::tuple_size_v<Fields>;
-
-	std::ifstream file(path);
-	if (!file)
-		throw std::runtime_error(path + ": cannot open file");
-
-	std::vector<T> records;
-	std::string line;
-	std::size_t lineNo = 0;
-
-	while (std::getline(file, line))
+	static std::vector<T> parse(const std::string& path, bool hasHeader = true)
 	{
-		++lineNo;
-		if (hasHeader && lineNo == 1) continue;
-		if (csv_detail::trim(line).empty()) continue;
+		using Fields = typename T::TypeTuple;
+		constexpr std::size_t N = std::tuple_size_v<Fields>;
 
-		try
-		{
-			const auto cells = csv_detail::split(line);
-			if (cells.size() != N)
-				throw std::invalid_argument("expected " + std::to_string(N) +
-					" fields, found " + std::to_string(cells.size()));
+		std::ifstream file(path);
+		if (!file)
+			throw std::runtime_error(path + ": cannot open file");
 
-			Fields fields = csv_detail::parseRow<Fields>(cells, std::make_index_sequence<N>{});
-			records.push_back(std::make_from_tuple<T>(std::move(fields)));
-		}
-		catch (const std::exception& e)
-		{
-			// Includes validation errors thrown by T's constructor.
-			throw std::runtime_error(path + ":" + std::to_string(lineNo) + ": " + e.what());
-		}
-	}
-	return records;
-}
+		std::vector<T> records;
+		std::string line;
+		std::size_t lineNo = 0;
 
-static void writeln_csv(const std::vector<std::string>& elements, const std::string& filePath)
-{
-	std::ifstream readFile(filePath);
-	if (!readFile)
-	{
-		//create file and use it
-	}	
-	std::string line;
-	std::size_t lineNo = 0;
-	
-	while (std::getline(readFile, line)) {
-		lineNo++;
-		if (csv_detail::trim(line).empty())
+		while (std::getline(file, line))
 		{
-			std::string writeLine;
-			for (std::string s : elements)
+			++lineNo;
+			if (hasHeader && lineNo == 1) continue;
+			if (csv_detail::trim(line).empty()) continue;
+
+			try
 			{
-				writeLine += s + ",";
+				const auto cells = csv_detail::split(line);
+				if (cells.size() != N)
+					throw std::invalid_argument("expected " + std::to_string(N) +
+						" fields, found " + std::to_string(cells.size()));
+
+				Fields fields = csv_detail::parseRow<Fields>(cells, std::make_index_sequence<N>{});
+				records.push_back(std::make_from_tuple<T>(std::move(fields)));
 			}
-			std::ofstream writeFile(filePath);
-			writeFile << writeLine << std::endl;
-				//write the line
-				break;
+			catch (const std::exception& e)
+			{
+				// Includes validation errors thrown by T's constructor.
+				throw std::runtime_error(path + ":" + std::to_string(lineNo) + ": " + e.what());
+			}
 		}
-	}			
+		return records;
+	}
+
+	static void writeln_csv(const std::vector<std::string>& elements, const std::string& filePath)
+	{
+		std::ofstream writeFile(filePath, std::ios::app);
+		if (!writeFile)
+			throw std::runtime_error("Cannot open file: " + filePath);
+
+		for (std::size_t i = 0; i < elements.size(); ++i)
+		{
+			if (i > 0)
+				writeFile << ',';
+			writeFile << elements[i];
+		}
+		writeFile << '\n';
+	}
 }

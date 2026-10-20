@@ -17,7 +17,7 @@ public:
 	std::vector<JobData> take_jobs();
 	std::vector<WorkerData> take_workers();
 	std::vector<FailureData> take_failures();
-
+	std::string take_basePath();
 public:
 	int test_command(const std::string& option);
 

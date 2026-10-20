@@ -7,6 +7,7 @@
 #include "Failure.h"
 #include "Types.h"
 #include "Policy.h"
+#include "Logger.h"
 
 class SimulationSystem
 {
@@ -24,6 +25,7 @@ private:
 	std::vector<Failure> m_failures;
 
 	std::unique_ptr<WorkPolicy> activePolicy;
+	std::unique_ptr<Logger> log;
 
 	Policies policy = SJF;
 	int completedJobs = 0;
@@ -45,5 +47,6 @@ public:
 	void Tick();
 
 	void assign_data(std::vector<JobData> jobs, std::vector<WorkerData> workers, std::vector<FailureData> failures);	
+	void assign_logger(std::unique_ptr<Logger>& logger);
 };
 

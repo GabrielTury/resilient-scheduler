@@ -7,9 +7,9 @@ void SJFPolicy::assign_jobs(std::vector<Job>& jobs, std::vector<Worker>& workers
 	for (Job& j : jobs)
 	{
 		bool bUnassigned = j.get_active() && !j.is_ticking();
-		bool bCompleted = j.get_remainingTicks() <= 0;
+		//bool bCompleted = j.get_remainingTicks() <= 0;
 
-		if (bUnassigned && !bCompleted)
+		if (bUnassigned)
 		{
 			availableJobs.emplace_back(j);
 		}

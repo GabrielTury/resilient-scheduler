@@ -35,6 +35,9 @@ private:
 	Tick deadline;
 
 	Tick remainingTicks;
+	Tick completionTick = -1; //Negative while not completed
+
+	JobStates state = JobStates::NOTARRIVED;
 public:
 	Job() = default;
 
@@ -56,6 +59,9 @@ public:
 	const Tick get_remainingTicks() const { return remainingTicks; };
 	const bool is_ticking() const { return bTicking; };
 	const int get_memory() const { return memoryUnits; };
-	void work();
+	const JobStates& get_state() const { return state; };
+	const Tick get_completion_tick() const { return completionTick; };
+	void work(Tick tick);
+	void restart();
 };
 

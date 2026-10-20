@@ -68,7 +68,7 @@ void SimulationSystem::do_work()
 			
 		if (it == m_Jobs.end()) continue;
 			
-		it->work();				
+		it->work(tickCounter);				
 		if (it->get_remainingTicks() == 0) w.free_worker();					
 	}
 }
@@ -96,7 +96,9 @@ void SimulationSystem::Start()
 {	
 	create_simulation_objects();
 	assign_policy();
-
+	log = std::make_unique<Logger>();
+	bool writeHeader = true;
+	log->writeln_traces(m_Jobs, m_workers, writeHeader);
 	Tick();
 }
 
@@ -108,7 +110,7 @@ void SimulationSystem::Tick()
 		update_jobs();
 		activePolicy->assign_jobs(m_Jobs, m_workers);
 		do_work();
-
+		log->writeln_traces(m_Jobs, m_workers, tickCounter);
 		std::cout << "Tick" << "\n";
 		tickCounter++;
 	} while (completedJobs <= m_Jobs.size());
@@ -120,4 +122,9 @@ void SimulationSystem::assign_data(std::vector<JobData> jobs, std::vector<Worker
 	srcJobs = std::move(jobs);
 	srcWorkers = std::move(workers);
 	srcFailures = std::move(failures);
+}
+
+void SimulationSystem::assign_logger(std::unique_ptr<Logger>& logger)
+{
+	log = std::move(logger);
 }

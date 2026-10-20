@@ -2,14 +2,24 @@
 
 void Job::update(Tick currentTick)
 {
-	if (arrival >= currentTick)
-	{
-		bActive = true;
-	}
+	bool bHasArrived = arrival >= currentTick;
+	bool bCompleted = remainingTicks == 0;
+	bool bLate = currentTick > deadline;
 
+	if (bHasArrived && !bCompleted)
+	{
+		bActive = true;		
+	}	
+
+
+	state = bHasArrived ? JobStates::READY : JobStates::NOTARRIVED;
+	state = bHasArrived && bCompleted ? JobStates::COMPLETED : state;
+	state = bHasArrived && bLate && !bCompleted ? JobStates::LATE : JobStates::WAITING;
 }
 
-void Job::work()
+void Job::work(Tick tick)
 {
-	remainingTicks--;
+	remainingTicks--;	
+
+	completionTick = remainingTicks == 0 ? tick : -1;
 }

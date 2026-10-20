@@ -28,6 +28,11 @@ std::vector<FailureData> Command::take_failures()
 	return std::vector<FailureData>();
 }
 
+std::string Command::take_basePath()
+{
+	return std::move(basePath);
+}
+
 int Command::test_command(const std::string& option)
 {
 	std::cout << "Executing test command with option: " << option << std::endl;
