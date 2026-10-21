@@ -1,6 +1,7 @@
 #include "Commands.h"
 #include <iostream>
 #include <filesystem>
+#include <unordered_map>
 #include "Types.h"
 #include "CsvUtils.hpp"
 
@@ -31,6 +32,21 @@ std::vector<FailureData> Command::take_failures()
 std::string Command::take_basePath()
 {
 	return std::move(basePath);
+}
+
+Policies Command::take_policy()
+{
+	return std::move(chosenPolicy);
+}
+
+RecoveryMode Command::take_rec_mode()
+{
+	return std::move(chosenRec);
+}
+
+Quantum Command::get_quantum()
+{
+	return quantum;
 }
 
 int Command::test_command(const std::string& option)
@@ -92,6 +108,57 @@ int Command::failures_command(const std::string& option)
 	}
 
 	parsedFailures = CsvUtils::parse<FailureData>(file);
+	return SUCCESS;
+}
+
+int Command::policy_command(const std::string& option)
+{
+	std::unordered_map<std::string, Policies> validOpts{ 
+		{"SJF", Policies::SJF},
+		{"RR", Policies::RR},
+		{"FIFO", Policies::FIFO},
+		{"SCORE", Policies::SCORE}
+	};
+
+	auto it = validOpts.find(option);
+
+	if (it == validOpts.end()) return INVALID_OPTION;
+	
+	chosenPolicy = it->second;
+	return SUCCESS;
+	
+}
+
+int Command::recoverymode_command(const std::string& option)
+{
+	std::unordered_map<std::string, RecoveryMode> opts{
+		{"RESUME", RecoveryMode::RESUME},
+		{"RESTART", RecoveryMode::RESTART}
+	};
+
+	auto it = opts.find(option);
+
+	if (it == opts.end()) return INVALID_OPTION;
+
+	chosenRec = it->second;
+	return SUCCESS;
+}
+
+int Command::quantum_command(const std::string& option)
+{
+	int quant = 0;
+	auto [ptr, ec] = std::from_chars(option.data(), option.data() + option.size(), quant);
+
+	if ((ec != std::errc()) || (ptr != option.data() + option.size())) {
+		return INVALID_OPTION;
+	}
+
+	if (quant < 0) {
+		return INVALID_OPTION;
+	}
+
+	quantum = quant;
+
 	return SUCCESS;
 }
 

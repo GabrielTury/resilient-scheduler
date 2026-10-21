@@ -26,7 +26,7 @@ class Job : public SimulationBaseObject
 {
 private:
 	bool bTicking{ false };
-
+	bool bFinished{ false }; //Means that there will be no more processing on this obj
 	std::string id;
 	Tick arrival;
 	Tick duration;
@@ -35,9 +35,12 @@ private:
 	Tick deadline;
 
 	Tick remainingTicks;
-	Tick completionTick = -1; //Negative while not completed
+	Tick completionTick = 99999; //Negative while not completed
+	Tick waitingTicks = 0;
 
 	JobStates state = JobStates::NOTARRIVED;
+
+
 public:
 	Job() = default;
 
@@ -61,7 +64,15 @@ public:
 	const int get_memory() const { return memoryUnits; };
 	const JobStates& get_state() const { return state; };
 	const Tick get_completion_tick() const { return completionTick; };
+	const bool is_finished() const { return bFinished; };
+	const Tick get_arrival() const { return arrival; };
+	const Tick get_deadline() const { return deadline; };
+	const Tick get_waitingTicks() const { return waitingTicks; };
+
 	void work(Tick tick);
 	void restart();
+	void finish();
+	void declare_impossible();
+	void pause();
 };
 

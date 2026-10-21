@@ -23,6 +23,7 @@ class Worker : public SimulationBaseObject
 private:
 	std::string workingJobId = "";
 	std::string id;
+	std::string lastJobId = "";
 	int memoryCapacity;
 
 public:
@@ -39,11 +40,12 @@ public:
 public:
 	const std::string& get_id() const { return id; };
 	
-	void set_active(const bool active) { bActive = active; };
+	void set_active(const bool active);
 
 	void set_job(const std::string& jobId) { workingJobId = jobId; };
-	void free_worker() { workingJobId = ""; };
+	void free_worker() { lastJobId = workingJobId; workingJobId = ""; };
 	const std::string get_working_jobId() const { return workingJobId; };
+	const std::string get_last_jobId() const { return lastJobId; };
 	const int get_max_memory() const { return memoryCapacity; };
 
 	void update(Tick tick) override;

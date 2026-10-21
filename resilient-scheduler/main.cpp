@@ -8,12 +8,15 @@
 #include <functional>
 #include "Logger.h"
 
-constexpr std::array<std::string_view, 5> commandList{
+constexpr std::array<std::string_view, 8> commandList{
 	"--test",
 	"--base_folder",
 	"--workers",
 	"--jobs",
-	"--failures"
+	"--failures",
+	"--policy",
+	"--quantum",
+	"--recmode",
 };
 
 constexpr std::array<int (Command::*)(const std::string&), commandList.size()> commandFuncs{
@@ -21,7 +24,10 @@ constexpr std::array<int (Command::*)(const std::string&), commandList.size()> c
 	&Command::base_folder_command,
 	&Command::workers_command,
 	&Command::jobs_command,
-	&Command::failures_command
+	&Command::failures_command,
+	&Command::policy_command,
+	&Command::quantum_command,
+	&Command::recoverymode_command
 };
 
 constexpr int find_command_index(const std::string_view cmd)
@@ -62,10 +68,10 @@ int process_arguments(int argc, char** argv, SimulationSystem& sim)
 	
 	if (errorCode == SUCCESS)
 	{
-		sim.assign_data(command.take_jobs(), command.take_workers(), command.take_failures());
-		//std::unique_ptr<Logger> logger = std::make_unique<Logger>(command.take_basePath());
+		sim.assign_data(command.take_jobs(), command.take_workers(), command.take_failures(), command.take_policy(), command.get_quantum(), command.take_rec_mode());
+		std::unique_ptr<Logger> logger = std::make_unique<Logger>(command.take_basePath());
 		
-		//sim.assign_logger(logger);
+		sim.assign_logger(logger);
 	}
 
 	return errorCode;

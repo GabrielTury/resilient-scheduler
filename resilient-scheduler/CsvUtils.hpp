@@ -140,4 +140,9 @@ namespace CsvUtils {
 		}
 		writeFile << '\n';
 	}
+
+	static void empty_file(const std::string& filePath)
+	{
+		std::ofstream eraseFile(filePath);
+	}
 }

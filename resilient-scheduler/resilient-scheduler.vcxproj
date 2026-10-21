@@ -153,6 +153,7 @@
     <ClInclude Include="CsvUtils.hpp" />
     <ClInclude Include="Failure.h" />
     <ClInclude Include="Job.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Policy.h" />
     <ClInclude Include="SimulationBaseObject.h" />

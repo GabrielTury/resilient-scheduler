@@ -7,8 +7,17 @@ void SimulationSystem::assign_policy()
 {
 	switch (policy)
 	{
-		case SJF:
+		case Policies::SJF:
 			activePolicy = std::make_unique<SJFPolicy>();
+			break;
+		case Policies::FIFO:
+			activePolicy = std::make_unique<FIFOPolicy>();
+			break;
+		case Policies::RR:
+			activePolicy = std::make_unique<RRPolicy>();
+			static_cast<RRPolicy*>(activePolicy.get())->assign_quantum(quantum);
+			break;
+		case Policies::SCORE:
 			break;
 		default:
 			break;
@@ -29,8 +38,9 @@ void SimulationSystem::update_workers()
 				});
 			
 			if (it != m_workers.end())
-			{
-				it->set_active(false); //disables worker @todo make worker take care of its own disabling
+			{				
+				it->set_active(false); //disables worker @todo make worker take care of its own disabling	
+				failedJobIds.emplace_back(it->get_last_jobId());
 			}
 		}
 		else
@@ -41,7 +51,7 @@ void SimulationSystem::update_workers()
 
 			if (it != m_workers.end())
 			{
-				it->set_active(true); //disables worker @todo make worker take care of its own disabling
+				it->set_active(true);
 			}
 		}
 	}
@@ -50,9 +60,18 @@ void SimulationSystem::update_workers()
 void SimulationSystem::update_jobs()
 {	
 	for (Job& j : m_Jobs)
-	{
+	{		
+		handle_job_failure(j);
 		j.update(tickCounter);
-		j.get_remainingTicks() <= 0 ? completedJobs++ : false;
+
+		bool bImpossible = j.get_state() == JobStates::IMPOSSIBLE;
+		bool bCompleted = j.get_state() == JobStates::COMPLETED;
+
+		if ((bCompleted || bImpossible) && !j.is_finished())
+		{
+			j.finish();
+			completedJobs++;
+		}	
 	}	
 }
 
@@ -68,8 +87,8 @@ void SimulationSystem::do_work()
 			
 		if (it == m_Jobs.end()) continue;
 			
-		it->work(tickCounter);				
-		if (it->get_remainingTicks() == 0) w.free_worker();					
+		it->work(tickCounter);
+		if (it->get_state() == JobStates::COMPLETED) w.free_worker();				
 	}
 }
 
@@ -92,13 +111,37 @@ void SimulationSystem::create_simulation_objects()
 
 }
 
+void SimulationSystem::handle_job_failure(Job& job)
+{
+	auto it = std::find_if(failedJobIds.begin(), failedJobIds.end(), [&job](const std::string& s) {
+		return job.get_id() == s;
+		});
+
+	if (it != failedJobIds.end())
+	{
+		switch (recMode)
+		{
+		case RecoveryMode::RESUME:
+			job.pause();
+			break;
+		case RecoveryMode::RESTART:
+			job.restart();
+			break;
+		}
+	}
+}
+
 void SimulationSystem::Start()
 {	
 	create_simulation_objects();
+
 	assign_policy();
-	log = std::make_unique<Logger>();
+	activePolicy->set_maxMem(m_workers);
+
+	log->initialize_values(policy, recMode);	
 	bool writeHeader = true;
-	log->writeln_traces(m_Jobs, m_workers, writeHeader);
+	log->writeln_traces(m_Jobs, m_workers, 0, writeHeader);
+
 	Tick();
 }
 
@@ -110,18 +153,22 @@ void SimulationSystem::Tick()
 		update_jobs();
 		activePolicy->assign_jobs(m_Jobs, m_workers);
 		do_work();
-		log->writeln_traces(m_Jobs, m_workers, tickCounter);
-		std::cout << "Tick" << "\n";
+		log->writeln_traces(m_Jobs, m_workers, tickCounter, false);
+		std::cout << "Tick " << tickCounter << "\n";
 		tickCounter++;
-	} while (completedJobs <= m_Jobs.size());
-	
+	} while (completedJobs < m_Jobs.size());
+
+	log->write_summary(m_Jobs, m_workers);
 }
 
-void SimulationSystem::assign_data(std::vector<JobData> jobs, std::vector<WorkerData> workers, std::vector<FailureData> failures)
+void SimulationSystem::assign_data(std::vector<JobData> jobs, std::vector<WorkerData> workers, std::vector<FailureData> failures, Policies pol, Quantum quantum, RecoveryMode rec)
 {
 	srcJobs = std::move(jobs);
 	srcWorkers = std::move(workers);
 	srcFailures = std::move(failures);
+	policy = std::move(pol);
+	recMode = std::move(rec);
+	this->quantum = quantum;
 }
 
 void SimulationSystem::assign_logger(std::unique_ptr<Logger>& logger)

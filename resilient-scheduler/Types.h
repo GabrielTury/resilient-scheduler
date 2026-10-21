@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 using Tick = uint32_t;
+using Quantum = uint16_t;
 
 enum ErrorCode {
 	SUCCESS = 0,
@@ -9,17 +10,23 @@ enum ErrorCode {
 	EXECUTION_FAILED = -3
 };
 
-enum Policies {
+enum class Policies {
 	SJF = 0,
 	FIFO = 1,
-	RR = 2
+	RR = 2,
+	SCORE = 3
 };
 
 enum class JobStates {
 	NOTARRIVED = 0,
-	READY = 1,
-	COMPLETED = 2,
+	WAITING = 1,
+	RUNNING = 2,
 	LATE = 3,
-	WAITING = 4,
+	COMPLETED = 4,
+	IMPOSSIBLE = 5
 };
 
+enum class RecoveryMode {
+	RESUME = 0,
+	RESTART = 1
+};
