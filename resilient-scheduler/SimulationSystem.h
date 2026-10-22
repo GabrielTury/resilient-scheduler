@@ -39,6 +39,8 @@ private:
 	//Updates failures and deactivates workers
 	void update_workers();
 
+	void free_workers();
+
 	void update_jobs();
 
 	void do_work();	
@@ -54,6 +56,6 @@ public:
 	void Tick();
 
 	void assign_data(std::vector<JobData> jobs, std::vector<WorkerData> workers, std::vector<FailureData> failures, Policies pol ,Quantum quantum, RecoveryMode rec);	
-	void assign_logger(std::unique_ptr<Logger>& logger);
+	void assign_logger(std::unique_ptr<::Logger>& logger);
 };
 

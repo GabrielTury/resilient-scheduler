@@ -224,7 +224,7 @@ int Command::quantum_command(const std::string& option)
 		return INVALID_OPTION;
 	}
 
-	if (quant < 0) {
+	if (quant < 1) {
 		return INVALID_OPTION;
 	}
 

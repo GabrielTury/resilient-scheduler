@@ -16,6 +16,7 @@ private:
 
 	Policies policy = Policies::SJF;
 	RecoveryMode recoveryMode = RecoveryMode::RESTART;
+	Quantum quantum = 0;
 
 	std::unordered_map<std::string, Tick> workerBusyTicks;
 	std::unordered_map<std::string, Tick> workerAvailableTicks;
@@ -30,7 +31,7 @@ private:
 
 	void accumulate_worker_metrics(const std::vector<Worker>& workers);
 
-	void set_policy(Policies p) { policy = p; };
+	void set_policy(Policies p, Quantum quant) { policy = p; quantum = quant; };
 	void set_recovery_mode(RecoveryMode rec) { recoveryMode = rec; };
 	void set_filenames();
 
@@ -46,7 +47,7 @@ public:
 	Logger(const Logger&) = default;
 	Logger& operator=(Logger&&) noexcept = default;
 
-	void initialize_values(Policies& p, RecoveryMode& rec);
+	void initialize_values(Policies& p, RecoveryMode& rec, Quantum q = 0);
 
 	void write_summary(const std::vector<Job>& jobs, const std::vector<Worker>& workers);
 	void writeln_traces(const std::vector<Job>& jobs, const std::vector<Worker>& workers, Tick tick = 0, bool bWriteHeaders = false);

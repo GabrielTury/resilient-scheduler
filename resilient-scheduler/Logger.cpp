@@ -135,9 +135,9 @@ void Logger::set_filenames()
 	 workerTraceFile = basePath + policy_to_string(policy) + "_" + failure_policy_to_string(recoveryMode) + "_" + "worker_trace.csv";
 }
 
-void Logger::initialize_values(Policies& p, RecoveryMode& rec)
+void Logger::initialize_values(Policies& p, RecoveryMode& rec, Quantum q)
 {
-	set_policy(p);
+	set_policy(p, q);
 	set_recovery_mode(rec);
 	set_filenames();
 }
@@ -205,6 +205,7 @@ void Logger::write_summary(const std::vector<Job>& jobs, const std::vector<Worke
 
 	json summary;
 	summary["policy"] = policy_to_string(policy);
+	summary["quantum"] = quantum;
 	summary["recovery"] = failure_policy_to_string(recoveryMode);
 	summary["completed"] = completed;
 	summary["uncompleted"] = uncompleted;

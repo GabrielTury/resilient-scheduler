@@ -127,6 +127,17 @@ void SimulationSystem::handle_job_failure(Job& job)
 	failedJobIds.erase(it);
 }
 
+void SimulationSystem::free_workers()
+{
+	for (Worker& worker : m_workers)
+	{
+		auto completedJob = std::find_if(m_Jobs.begin(), m_Jobs.end(), [&worker](const Job& job) {
+			return job.get_id() == worker.get_working_jobId() && job.get_state() == JobStates::COMPLETED;
+			});
+		if (completedJob != m_Jobs.end()) worker.free_worker();
+	}
+}
+
 void SimulationSystem::Start()
 {	
 	create_simulation_objects();
@@ -134,7 +145,7 @@ void SimulationSystem::Start()
 	assign_policy();
 	activePolicy->set_maxMem(m_workers);
 
-	log->initialize_values(policy, recMode);	
+	log->initialize_values(policy, recMode, quantum);	
 	bool writeHeader = true;
 	log->writeln_traces(m_Jobs, m_workers, 0, writeHeader);
 
@@ -147,21 +158,19 @@ void SimulationSystem::Tick()
 	{
 		update_workers();
 		update_jobs();
+		if (completedJobs == m_Jobs.size()) continue;
+
 		activePolicy->assign_jobs(m_Jobs, m_workers);
 		do_work();
 		log->writeln_traces(m_Jobs, m_workers, tickCounter, false);
-		for (Worker& worker : m_workers)
-		{
-			auto completedJob = std::find_if(m_Jobs.begin(), m_Jobs.end(), [&worker](const Job& job) {
-				return job.get_id() == worker.get_working_jobId() && job.get_state() == JobStates::COMPLETED;
-			});
-			if (completedJob != m_Jobs.end()) worker.free_worker();
-		}
+
+		free_workers();
+
 		std::cout << "Tick " << tickCounter << "\n";
 		tickCounter++;
 		if (tickCounter > 999)
 		{
-			std::cout << "Error: Inifinte Loop" << std::endl;
+			std::cerr << "Error: Inifinte Loop" << std::endl;
 			break;
 		}
 	} while (completedJobs < m_Jobs.size());
@@ -179,7 +188,7 @@ void SimulationSystem::assign_data(std::vector<JobData> jobs, std::vector<Worker
 	this->quantum = quantum;
 }
 
-void SimulationSystem::assign_logger(std::unique_ptr<Logger>& logger)
+void SimulationSystem::assign_logger(std::unique_ptr<::Logger>& logger)
 {
 	log = std::move(logger);
 }

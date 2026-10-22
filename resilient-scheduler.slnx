@@ -4,4 +4,5 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="resilient-scheduler/resilient-scheduler.vcxproj" Id="1767302c-4b7c-4a62-a684-a7fccc199a30" />
+  <Project Path="scheduler_utests/scheduler_utests.vcxproj" />
 </Solution>
