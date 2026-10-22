@@ -98,7 +98,7 @@ std::string Logger::policy_to_string(Policies p)
 		case Policies::FIFO:  return "fifo";
 		case Policies::SJF:   return "sjf";
 		case Policies::RR:    return "round-robin";
-		case Policies::SCORE: return "score";
+		case Policies::LateLast: return "late-last";
 	}
 	return "unknown";
 }

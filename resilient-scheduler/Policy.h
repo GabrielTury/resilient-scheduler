@@ -38,11 +38,20 @@ public:
 class RRPolicy : public WorkPolicy {
 private:
 	Quantum quantum = 1;
+	std::deque<std::string> readyQueue;
+	std::unordered_map<std::string, Tick> quantumProgress;
 private:
-
+	bool is_available(const std::vector<Job>& availableJobs, const std::string& jobId) const;
 public:
 	RRPolicy() {};
 	void assign_quantum(const Quantum quant) { quantum = quant; };
+	void assign_jobs(std::vector<Job>& jobs, std::vector<Worker>& workers) override;
+};
+
+class LateLast : public WorkPolicy {
+
+public:
+	LateLast() {};
 	void assign_jobs(std::vector<Job>& jobs, std::vector<Worker>& workers) override;
 };
 

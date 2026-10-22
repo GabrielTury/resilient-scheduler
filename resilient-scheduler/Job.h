@@ -62,6 +62,7 @@ public:
 	const Tick get_remainingTicks() const { return remainingTicks; };
 	const bool is_ticking() const { return bTicking; };
 	const int get_memory() const { return memoryUnits; };
+	const int get_priority() const { return priority; };
 	const JobStates& get_state() const { return state; };
 	const Tick get_completion_tick() const { return completionTick; };
 	const bool is_finished() const { return bFinished; };

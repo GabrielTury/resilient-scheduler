@@ -2,8 +2,22 @@
 #include <iostream>
 #include <filesystem>
 #include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
 #include "Types.h"
 #include "CsvUtils.hpp"
+
+bool Command::has_same_id(std::vector<std::string>& ids)
+{
+	std::unordered_set<std::string> seen;
+
+	for (std::string& val : ids) {		
+		if (!seen.insert(val).second) {
+			return true;
+		}
+	}
+	return false;
+}
 
 std::vector<JobData> Command::take_jobs()
 {
@@ -78,7 +92,31 @@ int Command::workers_command(const std::string& option)
 		return INVALID_OPTION;
 	}
 
-	parsedWorkers = CsvUtils::parse<WorkerData>(file);
+	try
+	{
+		parsedWorkers = CsvUtils::parse<WorkerData>(file);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Parse Error: " << e.what() << std::endl;
+		return INVALID_FILE;
+	}
+
+	bool invalidFile = std::any_of(parsedWorkers.begin(), parsedWorkers.end(), [](const WorkerData& wd) {
+		return (wd.memoryCapacity <= 0);
+		});
+
+	std::vector<std::string> wIds;
+
+	for (WorkerData& jd : parsedWorkers)
+	{
+		wIds.emplace_back(jd.id);
+	}
+
+	bool hasDuplicate = has_same_id(wIds);
+
+	return invalidFile && hasDuplicate ? INVALID_FILE : SUCCESS;
+	
 	return SUCCESS;
 }
 
@@ -92,9 +130,30 @@ int Command::jobs_command(const std::string& option)
 		return INVALID_OPTION;
 	}
 
+	try {
 
-	parsedJobs = CsvUtils::parse<JobData>(file);
-	return SUCCESS;
+		parsedJobs = CsvUtils::parse<JobData>(file);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Parse Error: " << e.what() << std::endl;
+		return INVALID_FILE;
+	}
+
+	bool invalidFile = std::any_of(parsedJobs.begin(), parsedJobs.end(), [](const JobData& jd) {
+		return (jd.arrival < 0) || (jd.duration < 0) || (jd.deadline < 0) || (jd.memoryUnits < 0) || (jd.priority < 0);
+		});
+
+	std::vector<std::string> jobIds;
+
+	for (JobData& jd : parsedJobs)
+	{
+		jobIds.emplace_back(jd.id);
+	}
+
+	bool hasDuplicate = has_same_id(jobIds);
+
+	return invalidFile && hasDuplicate ? INVALID_FILE : SUCCESS;
 }
 
 int Command::failures_command(const std::string& option)
@@ -107,8 +166,20 @@ int Command::failures_command(const std::string& option)
 		return INVALID_OPTION;
 	}
 
-	parsedFailures = CsvUtils::parse<FailureData>(file);
-	return SUCCESS;
+	try {
+		parsedFailures = CsvUtils::parse<FailureData>(file);	
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Parse Error: " << e.what() << std::endl;
+		return INVALID_FILE;
+	}
+
+	bool invalidFile = std::any_of(parsedFailures.begin(), parsedFailures.end(), [](const FailureData& fd) {
+		return (fd.duration <= 0) || (fd.start < 0);
+		});
+
+	return invalidFile ? INVALID_FILE : SUCCESS;
 }
 
 int Command::policy_command(const std::string& option)
@@ -117,7 +188,7 @@ int Command::policy_command(const std::string& option)
 		{"SJF", Policies::SJF},
 		{"RR", Policies::RR},
 		{"FIFO", Policies::FIFO},
-		{"SCORE", Policies::SCORE}
+		{"LATELAST", Policies::LateLast},		
 	};
 
 	auto it = validOpts.find(option);

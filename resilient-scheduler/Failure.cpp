@@ -2,5 +2,5 @@
 
 void Failure::update(Tick tick)
 {
-	if (tick >= start && tick <= (start + duration)) bActive = true;
+	bActive = tick >= start && tick - start < duration;
 }

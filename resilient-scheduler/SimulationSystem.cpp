@@ -17,7 +17,8 @@ void SimulationSystem::assign_policy()
 			activePolicy = std::make_unique<RRPolicy>();
 			static_cast<RRPolicy*>(activePolicy.get())->assign_quantum(quantum);
 			break;
-		case Policies::SCORE:
+		case Policies::LateLast:
+			activePolicy = std::make_unique<LateLast>();
 			break;
 		default:
 			break;
@@ -29,30 +30,25 @@ void SimulationSystem::update_workers()
 	for (Failure& f : m_failures)
 	{
 		f.update(tickCounter);
+	}
 
-		//@todo remake this to avoid repetition and avoid looping every frame for optimizations
-		if (f.get_active())
+	for (Worker& worker : m_workers)
+	{
+		const bool hasActiveFailure = std::any_of(m_failures.begin(), m_failures.end(), [&worker](const Failure& failure) {
+			return (failure.get_workerId() == worker.get_id()) && failure.get_active();
+		});
+
+		if (hasActiveFailure)
 		{
-			auto it = std::find_if(m_workers.begin(), m_workers.end(), [&f](const Worker& w) {
-				return w.get_id() == f.get_workerId();
-				});
-			
-			if (it != m_workers.end())
-			{				
-				it->set_active(false); //disables worker @todo make worker take care of its own disabling	
-				failedJobIds.emplace_back(it->get_last_jobId());
-			}
+			if (!worker.get_active()) continue;
+
+			const std::string failedJobId = worker.get_working_jobId();
+			worker.set_active(false);
+			if (!failedJobId.empty()) failedJobIds.emplace_back(failedJobId);
 		}
-		else
+		else if (!worker.get_active())
 		{
-			auto it = std::find_if(m_workers.begin(), m_workers.end(), [&f](const Worker& w) {
-				return w.get_id() == f.get_workerId();
-				});
-
-			if (it != m_workers.end())
-			{
-				it->set_active(true);
-			}
+			worker.set_active(true);
 		}
 	}
 }
@@ -88,7 +84,6 @@ void SimulationSystem::do_work()
 		if (it == m_Jobs.end()) continue;
 			
 		it->work(tickCounter);
-		if (it->get_state() == JobStates::COMPLETED) w.free_worker();				
 	}
 }
 
@@ -117,18 +112,19 @@ void SimulationSystem::handle_job_failure(Job& job)
 		return job.get_id() == s;
 		});
 
-	if (it != failedJobIds.end())
+	if (it == failedJobIds.end()) return;
+
+	switch (recMode)
 	{
-		switch (recMode)
-		{
-		case RecoveryMode::RESUME:
-			job.pause();
-			break;
-		case RecoveryMode::RESTART:
-			job.restart();
-			break;
-		}
+	case RecoveryMode::RESUME:
+		job.pause();
+		break;
+	case RecoveryMode::RESTART:
+		job.restart();
+		break;
 	}
+
+	failedJobIds.erase(it);
 }
 
 void SimulationSystem::Start()
@@ -154,8 +150,20 @@ void SimulationSystem::Tick()
 		activePolicy->assign_jobs(m_Jobs, m_workers);
 		do_work();
 		log->writeln_traces(m_Jobs, m_workers, tickCounter, false);
+		for (Worker& worker : m_workers)
+		{
+			auto completedJob = std::find_if(m_Jobs.begin(), m_Jobs.end(), [&worker](const Job& job) {
+				return job.get_id() == worker.get_working_jobId() && job.get_state() == JobStates::COMPLETED;
+			});
+			if (completedJob != m_Jobs.end()) worker.free_worker();
+		}
 		std::cout << "Tick " << tickCounter << "\n";
 		tickCounter++;
+		if (tickCounter > 999)
+		{
+			std::cout << "Error: Inifinte Loop" << std::endl;
+			break;
+		}
 	} while (completedJobs < m_Jobs.size());
 
 	log->write_summary(m_Jobs, m_workers);

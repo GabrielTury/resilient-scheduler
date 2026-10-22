@@ -18,6 +18,9 @@ private:
 	RecoveryMode chosenRec = RecoveryMode::RESUME;
 
 	Quantum quantum = 0;
+
+private:
+	bool has_same_id(std::vector<std::string>& ids);
 public:
 	std::vector<JobData> take_jobs();
 	std::vector<WorkerData> take_workers();

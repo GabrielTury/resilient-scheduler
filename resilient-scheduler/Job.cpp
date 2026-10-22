@@ -27,6 +27,7 @@ void Job::update(Tick currentTick)
 
 void Job::work(Tick tick)
 {
+	if (state == JobStates::WAITING) waitingTicks--;
 	remainingTicks--;	
 	bTicking = true;
 	state = JobStates::RUNNING;
